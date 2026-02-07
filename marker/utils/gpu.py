@@ -38,13 +38,14 @@ def get_gpu_total_memory_gb() -> float:
         return 0
 
 
-def scale_batch_size(default_batch_size: int, low_vram_batch_size: int, vram_threshold_gb: float = 10.0) -> int:
+def scale_batch_size(default_batch_size: int, low_vram_batch_size: int, vram_threshold_gb: float = 14.0) -> int:
     """Scale batch size based on available GPU memory.
 
     Args:
         default_batch_size: Batch size for GPUs with >= vram_threshold_gb total VRAM.
         low_vram_batch_size: Batch size for GPUs with < vram_threshold_gb total VRAM.
         vram_threshold_gb: VRAM threshold in GB to decide between default and low_vram batch sizes.
+            GPUs below this threshold (e.g. 1080 Ti 11GB, 3060 12GB) get reduced batch sizes.
 
     Returns:
         Appropriate batch size for the current GPU.
