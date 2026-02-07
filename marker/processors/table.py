@@ -700,7 +700,7 @@ class TableProcessor(BaseProcessor):
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 6
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return scale_batch_size(default_batch_size=14, low_vram_batch_size=4)
+            return scale_batch_size(default_batch_size=14, low_vram_batch_size=2)
         return 6
 
     def get_recognition_batch_size(self):
@@ -709,12 +709,12 @@ class TableProcessor(BaseProcessor):
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 32
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return scale_batch_size(default_batch_size=48, low_vram_batch_size=16)
+            return scale_batch_size(default_batch_size=48, low_vram_batch_size=8)
         return 32
 
     def get_detection_batch_size(self):
         if self.detection_batch_size is not None:
             return self.detection_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return scale_batch_size(default_batch_size=10, low_vram_batch_size=4)
+            return scale_batch_size(default_batch_size=10, low_vram_batch_size=2)
         return 4

@@ -62,7 +62,7 @@ class LayoutBuilder(BaseBuilder):
         if self.layout_batch_size is not None:
             return self.layout_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return scale_batch_size(default_batch_size=12, low_vram_batch_size=4)
+            return scale_batch_size(default_batch_size=12, low_vram_batch_size=2)
         return 6
 
     def forced_layout(self, pages: List[PageGroup]) -> List[LayoutResult]:
