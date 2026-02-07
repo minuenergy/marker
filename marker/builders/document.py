@@ -9,6 +9,7 @@ from marker.schema import BlockTypes
 from marker.schema.document import Document
 from marker.schema.groups.page import PageGroup
 from marker.schema.registry import get_block_class
+from marker.utils.gpu import cuda_empty_cache
 
 
 class DocumentBuilder(BaseBuilder):
@@ -31,9 +32,12 @@ class DocumentBuilder(BaseBuilder):
     def __call__(self, provider: PdfProvider, layout_builder: LayoutBuilder, line_builder: LineBuilder, ocr_builder: OcrBuilder):
         document = self.build_document(provider)
         layout_builder(document, provider)
+        cuda_empty_cache()
         line_builder(document, provider)
+        cuda_empty_cache()
         if not self.disable_ocr:
             ocr_builder(document, provider)
+            cuda_empty_cache()
         return document
 
     def build_document(self, provider: PdfProvider):

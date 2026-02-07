@@ -10,6 +10,7 @@ from marker.processors import BaseProcessor
 from marker.schema import BlockTypes
 from marker.schema.document import Document
 from marker.settings import settings
+from marker.utils.gpu import scale_batch_size
 
 MATH_TAG_PATTERN = re.compile(r"<math[^>]*>(.*?)</math>")
 
@@ -48,7 +49,7 @@ class EquationProcessor(BaseProcessor):
         if self.equation_batch_size is not None:
             return self.equation_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 32
+            return scale_batch_size(default_batch_size=32, low_vram_batch_size=8)
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 6
         return 6

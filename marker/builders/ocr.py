@@ -20,6 +20,7 @@ from marker.schema.text.span import Span
 from marker.settings import settings
 from marker.schema.polygon import PolygonBox
 from marker.util import get_opening_tag_type, get_closing_tag_type
+from marker.utils.gpu import scale_batch_size
 
 
 class OcrBuilder(BaseBuilder):
@@ -97,7 +98,7 @@ class OcrBuilder(BaseBuilder):
         if self.recognition_batch_size is not None:
             return self.recognition_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 48
+            return scale_batch_size(default_batch_size=48, low_vram_batch_size=16)
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 16
         return 32

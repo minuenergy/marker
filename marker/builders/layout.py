@@ -11,6 +11,7 @@ from marker.schema.groups.page import PageGroup
 from marker.schema.polygon import PolygonBox
 from marker.schema.registry import get_block_class
 from marker.settings import settings
+from marker.utils.gpu import scale_batch_size
 
 
 class LayoutBuilder(BaseBuilder):
@@ -61,7 +62,7 @@ class LayoutBuilder(BaseBuilder):
         if self.layout_batch_size is not None:
             return self.layout_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 12
+            return scale_batch_size(default_batch_size=12, low_vram_batch_size=4)
         return 6
 
     def forced_layout(self, pages: List[PageGroup]) -> List[LayoutResult]:

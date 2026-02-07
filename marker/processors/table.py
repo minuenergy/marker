@@ -19,6 +19,7 @@ from marker.schema.document import Document
 from marker.schema.polygon import PolygonBox
 from marker.settings import settings
 from marker.util import matrix_intersection_area, unwrap_math
+from marker.utils.gpu import scale_batch_size
 from marker.utils.image import is_blank_image
 from marker.logger import get_logger
 
@@ -699,7 +700,7 @@ class TableProcessor(BaseProcessor):
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 6
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 14
+            return scale_batch_size(default_batch_size=14, low_vram_batch_size=4)
         return 6
 
     def get_recognition_batch_size(self):
@@ -708,12 +709,12 @@ class TableProcessor(BaseProcessor):
         elif settings.TORCH_DEVICE_MODEL == "mps":
             return 32
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 48
+            return scale_batch_size(default_batch_size=48, low_vram_batch_size=16)
         return 32
 
     def get_detection_batch_size(self):
         if self.detection_batch_size is not None:
             return self.detection_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 10
+            return scale_batch_size(default_batch_size=10, low_vram_batch_size=4)
         return 4

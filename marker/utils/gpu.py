@@ -8,6 +8,57 @@ from marker.settings import settings
 logger = get_logger()
 
 
+def cuda_empty_cache():
+    """Clear CUDA cache to free up GPU memory between pipeline stages."""
+    if torch.cuda.is_available() and "cuda" in settings.TORCH_DEVICE_MODEL:
+        torch.cuda.empty_cache()
+
+
+def get_gpu_free_memory_gb() -> float:
+    """Get free GPU memory in GB. Returns 0 if not using CUDA."""
+    if not torch.cuda.is_available() or "cuda" not in settings.TORCH_DEVICE_MODEL:
+        return 0
+
+    try:
+        free_mem, _ = torch.cuda.mem_get_info()
+        return free_mem / (1024 ** 3)
+    except Exception:
+        return 0
+
+
+def get_gpu_total_memory_gb() -> float:
+    """Get total GPU memory in GB. Returns 0 if not using CUDA."""
+    if not torch.cuda.is_available() or "cuda" not in settings.TORCH_DEVICE_MODEL:
+        return 0
+
+    try:
+        _, total_mem = torch.cuda.mem_get_info()
+        return total_mem / (1024 ** 3)
+    except Exception:
+        return 0
+
+
+def scale_batch_size(default_batch_size: int, low_vram_batch_size: int, vram_threshold_gb: float = 10.0) -> int:
+    """Scale batch size based on available GPU memory.
+
+    Args:
+        default_batch_size: Batch size for GPUs with >= vram_threshold_gb total VRAM.
+        low_vram_batch_size: Batch size for GPUs with < vram_threshold_gb total VRAM.
+        vram_threshold_gb: VRAM threshold in GB to decide between default and low_vram batch sizes.
+
+    Returns:
+        Appropriate batch size for the current GPU.
+    """
+    if "cuda" not in settings.TORCH_DEVICE_MODEL:
+        return low_vram_batch_size
+
+    total_vram = get_gpu_total_memory_gb()
+    if total_vram < vram_threshold_gb:
+        return low_vram_batch_size
+
+    return default_batch_size
+
+
 class GPUManager:
     default_gpu_vram: int = 8
 

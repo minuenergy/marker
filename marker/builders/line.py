@@ -19,6 +19,7 @@ from marker.schema.registry import get_block_class
 from marker.schema.text.line import Line
 from marker.settings import settings
 from marker.util import matrix_intersection_area, sort_text_lines
+from marker.utils.gpu import scale_batch_size
 from marker.utils.image import is_blank_image
 
 
@@ -103,14 +104,14 @@ class LineBuilder(BaseBuilder):
         if self.detection_batch_size is not None:
             return self.detection_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 10
+            return scale_batch_size(default_batch_size=10, low_vram_batch_size=4)
         return 4
 
     def get_ocr_error_batch_size(self):
         if self.ocr_error_batch_size is not None:
             return self.ocr_error_batch_size
         elif settings.TORCH_DEVICE_MODEL == "cuda":
-            return 14
+            return scale_batch_size(default_batch_size=14, low_vram_batch_size=4)
         return 4
 
     def get_detection_results(

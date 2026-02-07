@@ -53,6 +53,7 @@ from marker.processors.line_merge import LineMergeProcessor
 from marker.processors.llm.llm_mathblock import LLMMathBlockProcessor
 from marker.processors.llm.llm_page_correction import LLMPageCorrectionProcessor
 from marker.processors.llm.llm_sectionheader import LLMSectionHeaderProcessor
+from marker.utils.gpu import cuda_empty_cache
 
 
 class PdfConverter(BaseConverter):
@@ -187,6 +188,7 @@ class PdfConverter(BaseConverter):
 
         for processor in self.processor_list:
             processor(document)
+            cuda_empty_cache()
 
         return document
 
